@@ -1,0 +1,15 @@
+body {
+  font-family: Open Sans, sans-serif;
+}
+
+#visualization {
+  overflow: auto;
+}
+
+h1 {
+  font-size: 62px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: 1em;
+  margin: 1em 0;
+}

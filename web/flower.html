@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PerformanceFlower</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Rosario:400,700' rel='stylesheet' type='text/css'>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
+  </head>
+  <body>
+    <div class="content">
+      <div class="container">
+        <h1>PerformanceFlower</h1>
+        <div id="visualization"></div>
+        <form id="jsonInput">
+        <fieldset>
+          <textarea id="jsonData"></textarea>
+          <div class="pull-right">
+            <button type="submit" class="btn btn-primary btn-large">Update</button>
+          </div>
+        </fieldset>
+        </form>
+      </div>
+    </div>
+    <script type="text/javascript" src="js/d3/d3.js"></script>
+    <script type="text/javascript" src="js/d3/d3.geom.js"></script>
+    <script type="text/javascript" src="js/d3/d3.layout.js"></script>
+    <script type="text/javascript" src="js/CodeFlower.js"></script>
+    <script type="text/javascript" src="js/dataConverter.js"></script>
+    <script type="text/javascript">
+      var currentCodeFlower;
+      var createCodeFlower = function(json) {
+        // update the jsonData textarea
+        document.getElementById('jsonData').value = JSON.stringify(json);
+        // remove previous flower to save memory
+        if (currentCodeFlower) currentCodeFlower.cleanup();
+        // adapt layout size to the total number of elements
+        var total = countElements(json);
+        // create a new CodeFlower
+        currentCodeFlower = new CodeFlower("#visualization", 500, 400).update(json);
+      };
+      d3.json('data/data.json', createCodeFlower);
+      document.getElementById('jsonInput').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('visualization').scrollIntoView();
+        var json = JSON.parse(document.getElementById('jsonData').value);
+        currentCodeFlower.update(json);
+      });
+    </script>
+  </body>
+</html>
