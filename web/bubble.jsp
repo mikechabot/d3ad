@@ -4,13 +4,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Flower</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 <meta charset="utf-8">
 <style>
 text {
   font: 10px sans-serif;
 }
 </style>
+</head>
 <body>
+<div class="container">
+  <h1>Bubble</h1>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
@@ -66,5 +74,6 @@ function classes(root) {
 d3.select(self.frameElement).style("height", diameter + "px");
 
 </script>
+</div>
 </body>
 </html>

@@ -4,6 +4,11 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Flower</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" href="css/style.css"/>
 <meta charset="utf-8">
 <style>
 
@@ -26,8 +31,11 @@
 }
 
 </style>
+</head>
 <body>
 <script src="http://d3js.org/d3.v2.js?2.9.6"></script>
+<div class="container">
+<h1>Flower</h1>
 <script>
 
 var margin = {top: 40, right: 40, bottom: 40, left: 80},
@@ -82,5 +90,6 @@ function highlight(type) {
 }
 
 </script>
+</div>
 </body>
 </html>

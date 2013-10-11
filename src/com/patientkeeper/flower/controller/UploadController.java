@@ -11,17 +11,17 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
 import org.apache.log4j.Logger;
 
 import com.patientkeeper.flower.Controller;
 import com.patientkeeper.flower.service.UploadService;
 
 public class UploadController extends Controller {
-
-	private static Logger log = Logger.getLogger(UploadController.class);
 	
 	private static final long serialVersionUID = 1L;
-
+	private static Logger log = Logger.getLogger(UploadController.class);
+	
 	@Override
 	protected String basePath() { return ""; }	
 	
@@ -40,6 +40,8 @@ public class UploadController extends Controller {
 			
 	        File file = null;
 	        String filename = null;
+	        String output = null;
+	        		
 	        try {
 		        List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 		        for (FileItem item : items) {
@@ -48,6 +50,8 @@ public class UploadController extends Controller {
 		            	filename = file.getName();
 		            	file = File.createTempFile(file.getName(), ".tmp");
 		            	item.write(file);
+		            } else {
+		            	if(item.getFieldName().equals("output")) output = item.getString();
 		            }
 		        }
 		    } catch (FileUploadException e) {
@@ -55,12 +59,19 @@ public class UploadController extends Controller {
 		    }
 			
 	        UploadService upload = new UploadService();
-	        String json = upload.getJson(file);
+	        String json = null;
+	        if(output.equals("flower") || output.equals("bubble")) {
+	        	json = upload.getJson(file, true);
+	        } else if(output.equals("tree")) {
+	        	json = upload.getJson(file);
+	        }
+	        
+	        log.info("out="+output);
 	        
 	        request.setAttribute("json", json);
 	        request.setAttribute("filename", filename);
 			
-			return basePath() + "/tree.jsp";			
+			return basePath() + "/" + output + ".jsp";			
 		}		
 	}
 }

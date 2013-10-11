@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 
 import org.apache.log4j.Logger;
 import org.apache.regexp.RE;
@@ -14,10 +13,19 @@ public class UploadService {
 
 	private static Logger log = Logger.getLogger(UploadService.class);
 	
-	private static int limit = 500;	
-	private static RE timingPattern = new RE("^([^:]+):<?([^:]+):?(:?[0-9]+)? \\(.* = ([0-9].*) ms,.*= ([0-9].*) ms\\)");
+	private static int limit = 500;
+	private static RE regex = new RE("^([^:]+):<?([^:]+):?(:?[0-9]+)? \\(.* = ([0-9].*) ms,.*= ([0-9].*) ms\\)");
+	
+	private boolean includeSize = false;
+	
+	public String getJson(File file, boolean includeSize) throws IOException {
+		this.includeSize = true;
+		return getJson(file);
+	}
 	
 	public String getJson(File file) throws IOException {		
+		
+		log.info("includeSize="+includeSize);
 		
 		StringBuilder json = new StringBuilder();
 		FileInputStream inputStream = null;
@@ -30,42 +38,55 @@ public class UploadService {
 	            
 	            json.append("{ \"name\": \"thread\", \"children\": [ {");
 	            	            
-	            int level = 0;
-	            int prevLevel = level;
-	           
+	            int currLevel = 0;
+	            int prevLevel = currLevel;
 	            
 				String line;     
 				while ((line = reader.readLine()) != null) {
 					if(line.length() <= limit) {
-						if(timingPattern.match(line.trim())) {
-							String lePackage = timingPattern.getParen(1);
-							String leClass = lePackage.substring(lePackage.lastIndexOf(".")+1, lePackage.length());
-							String leMethod = timingPattern.getParen(2);
-							level = line.length() - line.trim().length();
-							
-							log.info(lePackage + " " + leClass + " " + leMethod + " " + level + " " + prevLevel);
-							if (level == 0) {
-								json.append(" \"name\": \"" + leMethod + " (" + timingPattern.getParen(4) +  ")\" ");
-							} else if (level == prevLevel) {
-								json.append("}, { \"name\": \"" + leMethod + " (" + timingPattern.getParen(4) +  ")\" ");
-							} else if (level > prevLevel) {
-								json.append(", \"children\": [ { \"name\": \"" + leMethod + " (" + timingPattern.getParen(4) +  ")\" ");
-							} else if (level < prevLevel) {
-								int diff = prevLevel - level;
+						if(regex.match(line.trim()) && includeSize) {
+							String method = regex.getParen(2);
+							currLevel = line.length() - line.trim().length();
+							if (currLevel == 0) {
+								json.append(" \"name\": \"" + method + "\", \"size\": " + regex.getParen(4) + " ");
+							} else if (currLevel == prevLevel) {
+								json.append("}, { \"name\": \"" + method + "\", \"size\": " + regex.getParen(4) + " ");
+							} else if (currLevel > prevLevel) {
+								json.append(", \"children\": [ { \"name\": \"" + method + "\", \"size\": " + regex.getParen(4) + " ");
+							} else if (currLevel < prevLevel) {
+								int diff = prevLevel - currLevel;
 								while (diff > 0) {
 									json.append("}]");
 									diff--;
 								}
-								json.append("},{ \"name\": \"" + leMethod + " (" + timingPattern.getParen(4) +  ")\" ");
+								json.append("},{ \"name\": \"" + method + "\", \"size\": " + regex.getParen(4) + " ");
 							}
-							prevLevel = level;
+							prevLevel = currLevel;
+						} else if (regex.match(line.trim())) {
+							String method = regex.getParen(2);
+							currLevel = line.length() - line.trim().length();
+							if (currLevel == 0) {
+								json.append(" \"name\": \"" + method + " (" + regex.getParen(4) +  ")\" ");								
+							} else if (currLevel == prevLevel) {
+								json.append("}, { \"name\": \"" + method + " (" + regex.getParen(4) +  ")\" ");								
+							} else if (currLevel > prevLevel) {
+								json.append(", \"children\": [ { \"name\": \"" + method + " (" + regex.getParen(4) +  ")\" ");
+							} else if (currLevel < prevLevel) {
+								int diff = prevLevel - currLevel;
+								while (diff > 0) {
+									json.append("}]");
+									diff--;
+								}
+								json.append("},{ \"name\": \"" + method + " (" + regex.getParen(4) +  ")\" ");
+							}
+							prevLevel = currLevel;
 						}
 					} 
 				continue;
 				}
-				while (level >= 0) {
+				while (currLevel >= 0) {
 					json.append("}]");
-					level--;
+					currLevel--;
 				}
 				json.append("}");
 			} catch (IOException e) {
@@ -81,8 +102,6 @@ public class UploadService {
 		} else {
 			log.error("File given to parseFile appears to be a directory: " + file.getAbsolutePath());
 		}
-		
-		log.info(json.toString());
 		
 		return json.toString();
 	}
