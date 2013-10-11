@@ -20,7 +20,6 @@ import com.patientkeeper.flower.service.UploadService;
 public class UploadController extends Controller {
 	
 	private static final long serialVersionUID = 1L;
-	private static Logger log = Logger.getLogger(UploadController.class);
 	
 	@Override
 	protected String basePath() { return ""; }	
@@ -60,14 +59,12 @@ public class UploadController extends Controller {
 			
 	        UploadService upload = new UploadService();
 	        String json = null;
-	        if(output.equals("flower") || output.equals("bubble")) {
+	        if(output.equals("flower") || output.equals("bubble") || output.equals("stack")) {
 	        	json = upload.getJson(file, true);
-	        } else if(output.equals("tree")) {
+	        } else if(output.equals("tree") || output.equals("reingold")) {
 	        	json = upload.getJson(file);
-	        }
-	        
-	        log.info("out="+output);
-	        
+	        }  
+
 	        request.setAttribute("json", json);
 	        request.setAttribute("filename", filename);
 			

@@ -24,9 +24,7 @@ public class UploadService {
 	}
 	
 	public String getJson(File file) throws IOException {		
-		
-		log.info("includeSize="+includeSize);
-		
+			
 		StringBuilder json = new StringBuilder();
 		FileInputStream inputStream = null;
 		BufferedReader reader = null;
@@ -61,7 +59,6 @@ public class UploadService {
 								}
 								json.append("},{ \"name\": \"" + method + "\", \"size\": " + regex.getParen(4) + " ");
 							}
-							prevLevel = currLevel;
 						} else if (regex.match(line.trim())) {
 							String method = regex.getParen(2);
 							currLevel = line.length() - line.trim().length();
@@ -79,8 +76,8 @@ public class UploadService {
 								}
 								json.append("},{ \"name\": \"" + method + " (" + regex.getParen(4) +  ")\" ");
 							}
-							prevLevel = currLevel;
 						}
+						prevLevel = currLevel;
 					} 
 				continue;
 				}

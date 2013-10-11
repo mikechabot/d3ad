@@ -22,6 +22,8 @@
 		  <option value="flower">Flower</option>
 		  <option value="bubble">Bubble</option>
 		  <option value="tree">Tree</option>
+		  <option value="stack">Stack</option>
+		  <option value="reingold">Reingold-Tilford</option>	  
 		</select>      
 	    </div>
 	  </div>
